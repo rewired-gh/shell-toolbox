@@ -9,14 +9,26 @@ CFG_PATH="/etc/yum.repos.d"
 case ${COMMAND} in
     "switch")
         case $DESC in
+            "tuna")
+                URL="https://mirrors.tuna.tsinghua.edu.cn/fedora"
+                ;;
             "sustech")
-                URL="https://mirrors.sustech.edu.cn"
+                URL="https://mirrors.sustech.edu.cn/fedora"
                 ;;
             "hitsz")
-                URL="http://10.249.12.85"
+                URL="http://10.249.12.85/fedora"
+                ;;
+            "hitsz6")
+                URL="http://[2001:250:3c0f:1002::f334]/fedora"
                 ;;
             "bfsu")
-                URL="https://mirrors.bfsu.edu.cn"
+                URL="https://mirrors.bfsu.edu.cn/fedora"
+                ;;
+            "sjtu")
+                URL="https://mirror.sjtu.edu.cn/fedora/linux"
+                ;;
+            "nju")
+                URL="https://mirror.nju.edu.cn/fedora/"
                 ;;
             *)
                 printf "No mirror selected.\n"
@@ -28,7 +40,7 @@ case ${COMMAND} in
         URL=${DESC}
         ;;
     *)
-        printf "DNF Mirror Utility\n\nCOMMAND:\n\tswitch <mirror name>\n\tset <mirror URL>\n"
+        printf "DNF Mirror Utility\n\nCOMMAND:\n\tswitch <mirror name>\n\tset <mirror URL>\n\nPRESETS:\n\ttuna, sustech, hitsz, hitsz6, bfsu, sjtu, nju\n"
         exit 0
         ;;
 esac
@@ -38,8 +50,8 @@ if [ ${EUID} != 0 ]; then
     exit $?
 fi
 
-sed -E -i 's,'${PATTERN}',baseurl='${URL}'/fedora/releases/$releasever/Everything/$basearch/os/,g' ${CFG_PATH}/fedora.repo
-sed -E -i 's,'${PATTERN}',baseurl='${URL}'/fedora/updates/$releasever/Everything/$basearch/,g' ${CFG_PATH}/fedora-updates.repo
-sed -E -i 's,'${PATTERN}',baseurl='${URL}'/fedora/releases/$releasever/Modular/$basearch/os/,g' ${CFG_PATH}/fedora-modular.repo
-sed -E -i 's,'${PATTERN}',baseurl='${URL}'/fedora/updates/$releasever/Modular/$basearch/,g' ${CFG_PATH}/fedora-updates-modular.repo
+sed -E -i 's,'${PATTERN}',baseurl='${URL}'/releases/$releasever/Everything/$basearch/os/,g' ${CFG_PATH}/fedora.repo
+sed -E -i 's,'${PATTERN}',baseurl='${URL}'/updates/$releasever/Everything/$basearch/,g' ${CFG_PATH}/fedora-updates.repo
+sed -E -i 's,'${PATTERN}',baseurl='${URL}'/releases/$releasever/Modular/$basearch/os/,g' ${CFG_PATH}/fedora-modular.repo
+sed -E -i 's,'${PATTERN}',baseurl='${URL}'/updates/$releasever/Modular/$basearch/,g' ${CFG_PATH}/fedora-updates-modular.repo
 dnf makecache
