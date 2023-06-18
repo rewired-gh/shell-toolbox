@@ -1,0 +1,48 @@
+#!/bin/bash
+
+set -e
+
+COMMAND="$1"
+DIR=`realpath "$2"`
+FILE=`realpath "$2"`
+DATE=`date -I`
+
+get_root () {
+    if [ "${EUID}" != 0 ]; then
+        sudo "$0" "$@"
+        exit "$?"
+    fi
+}
+
+case "${COMMAND}" in
+    "backup")
+        get_root
+        cd /
+        tar --acls --xattrs --zstd --one-file-system -cpf "${DIR}/backup-${DATE}.tar.zstd" \
+            --exclude="${DIR}" \
+            --exclude=/boot \
+            --exclude=/proc \
+            --exclude=/tmp \
+            --exclude=/mnt \
+            --exclude=/dev \
+            --exclude=/sys \
+            --exclude=/run \
+            --exclude=/media \
+            --exclude=/var/log \
+            --exclude=/var/cache/apt/archives \
+            --exclude=/usr/src/linux-headers* \
+            --exclude=/**/*.log \
+            --exclude=/**/log/* \
+            --exclude=/**/logs/* \
+            --exclude=/**/tmp/* \
+            /
+        ;;
+    "restore")
+        get_root
+        tar --acls --xattrs --zstd --overwrite --unlink-first --numeric-owner -xpf "${FILE}" -C /
+        ;;
+    *)
+        printf "Debian Backup Utility\n\nCOMMAND:\n\tbackup <backup directory>\n\trestore <restore file>\n"
+        exit 0
+        ;;
+esac
