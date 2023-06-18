@@ -3,9 +3,6 @@
 set -e
 
 COMMAND="$1"
-DIR=`realpath "$2"`
-FILE=`realpath "$2"`
-DATE=`date -I`
 
 get_root () {
     if [ "${EUID}" != 0 ]; then
@@ -16,6 +13,8 @@ get_root () {
 
 case "${COMMAND}" in
     "backup")
+        DATE=`date -I`
+        DIR=`realpath "$2"`
         get_root
         cd /
         tar --acls --xattrs --zstd --one-file-system -cpf "${DIR}/backup-${DATE}.tar.zstd" \
@@ -38,11 +37,12 @@ case "${COMMAND}" in
             /
         ;;
     "restore")
+        FILE=`realpath "$2"`
         get_root
         tar --acls --xattrs --zstd --overwrite --unlink-first --numeric-owner -xpf "${FILE}" -C /
         ;;
     *)
-        printf "Debian Backup Utility\n\nCOMMAND:\n\tbackup <backup directory>\n\trestore <restore file>\n"
+        printf "Debian Backup Utility\n\nCOMMAND:\n\tbackup <backup directory>\n\trestore <restore file>\n\nNOTICE: <backup directory> is excluded in the backup!\n"
         exit 0
         ;;
 esac
